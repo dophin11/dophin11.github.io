@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, maximum-scale=1.0" />
+
+    <title>Yishu Fang's HCDE 439 Physical Computing Page!</title>
+
+    <link href="style.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <h1>Yishu Fang's 2nd Assignment!</h1>
+    <div class="header">
+    </div>
+      <p>Document for Assignment 2: Fade!</p>
+      <h2>Calculation and Schematic</h2>
+      <img src = "calculation 2.png"/>
+      <img src = "schematics 2.png"/>
+      <p> I used Ohm's law to calculate the appropriate resistors to keep the current 
+        under 20mA for all LEDs. Based on my calculations, the closest fit was a 220Ω 
+        resistor for the red, yellow, and green LEDs, and a 100Ω resistor for the blue 
+        LED. However, when I tested the 100Ω resistor with the blue LED, the resulting 
+        brightness was uncomfortably high. To ensure a more balanced and comfortable brightness, 
+        I decided to use 220Ω resistors for all the LEDs.
+        The resistance of the push button is really small, so I used the 10KΩ resistor
+        for the push button as indicated in the schematics.
+      </p>
+    </div>
+      <h2>Circuit</h2>
+      <img src="circuit2.png"/>
+      <p>The circuit is build according to the schematics above</p>
+      <h2>Answer to the questions</h2>
+      <img src = "graph2.png"/>
+      <img src = "question 2.png"/>
+      <p>Based on calculations above, my circuit can run at least 13 hours and 47 minutes</p>
+      <h2>operation of the circuit</h2>
+        <p>
+            The button performs four distinct tasks:
+
+            Task 1: Press the button once to turn on all LEDs. The RGB LED will begin fading automatically.
+            Task 2: Press the button twice within a 1-second time limit. This means both presses must occur 
+            within one second; pressing once and waiting longer (e.g., until the next day) will not count. 
+            Completing this action will turn off all lights.
+            Task 3: Press the button three times within the 1-second time limit to set the RGB LED to a mixed 
+            color. You can customize the color by adjusting the RGB values in the code (ranging from 0 to 255).
+            Task 4: Hold the button for more than 0.5 seconds. This will turn off all LEDs except the RGB LED, 
+            which will light up and begin fading.
+            This design ensures precise control over the LEDs with simple, intuitive interactions.
+        </p>
+        <img src="working circuit.gif"/>
+        <p>below is the code snippet:</p>
+        <pre>
+            <code>
+              
+              int R = 9;//the pin number for different leds
+              int G = 10;
+              int B = 11;
+              int r = 8;
+              int y = 7;
+              int g = 6;
+              
+              
+              const int buttonPin = 2;  // the number of the pushbutton pin
+              int prevState = 0; //record previous button state
+              int count = 0; //record how many times the button is pushed
+              int buttonState = 0;  // variable for reading the pushbutton status
+              int fade = 0; //value to control led fading
+              int timeout = 100; //time limit for user to press button
+              int task = 0; //record task number
+              int hold = 0; //record the length that the button is being held
+              
+              void setup() {
+                pinMode(buttonPin, INPUT); //set button pin to input
+                for (int i = 6; i<9; i++){ //set led pins to output
+                  pinMode(i, OUTPUT);
+                }
+                Serial.begin(9600); //for serial monitor
+              }
+              
+              void loop() {
+                //check button state, update count and hold number
+                buttonState = digitalRead(buttonPin); //read the state of the button
+                if (buttonState == HIGH){ //check button state
+                  if (hold <= 60){ //check hold amount
+                    hold ++; // add to hold 
+                  }
+                  Serial.println(hold); //print out hold number
+                  prevState = HIGH; //update previous state
+                }
+                else{
+                  if (buttonState!= prevState){ //check if change of state happend
+                    if (count == 0){ 
+                      timeout = 100; //reset timeout if button not pressed
+                    }
+                    count++; //count button pressed
+                    prevState = LOW; //update previous state
+                    Serial.println(count); //print out count number
+                  }
+                }
+              
+              
+                //assign task number
+                if (count >= 1 && timeout <= 0){ //check if button is pressed
+                  if(count == 1 && hold < 50){ //check button count is one and it is not a hold
+                    task = 1; //set task to 1
+                    hold = 0; //reset hold
+                  }else if (count == 2){ //set task 2, similar to task 1
+                    task = 2;
+                    hold = 0;
+                  }else if (count >= 3){// set task 3, similar to task 1
+                    task = 3;
+                    hold = 0;
+                  }
+                  count = 0; //reset button count
+                } else if (count == 1 && hold >= 50){ //check if the button is hold
+                  task = 4; //set task to task 4
+                  hold = 0; //reset hold
+                  count = 0; //reset count
+                }
+              
+              
+                //task 1
+                if (task == 1){ //check if task is 1
+                  if(fade<256){ 
+                    analogWrite(R,fade);  //set value for red led to fade
+                  }
+                  else if(fade<512){
+                    analogWrite(G,fade%256);// set value for green led to fade
+                  }
+                  else if (fade<868){
+                    analogWrite(B, fade%256); //set value for blue led to fade
+                  } 
+                  else{
+                    fade = 0; //reset fade value
+                  }
+                  for(int i = 6; i<9; i++){
+                    digitalWrite(i, HIGH); //light up all other led
+                  }
+                }
+                //task 2
+                else if(task == 2){
+                  analogWrite(R,0); // close all RGB led
+                  analogWrite(G,0);
+                  analogWrite(B,0);
+                  for(int i = 6; i<9; i++){ //close all other leds
+                    digitalWrite(i, LOW);
+                  }
+                }
+                //task 3
+                else if(task == 3){
+                  analogWrite(R,0);//close all RGB led
+                  analogWrite(G,0);
+                  analogWrite(B,0);
+                  for(int i = 6; i<9; i++){ //close all other leds
+                    digitalWrite(i, LOW);
+                  }
+                  digitalWrite(r, HIGH); //turn on red led
+                  analogWrite(R,180); // mix color on the RGB led by setting values
+                  analogWrite(B, 150);
+                }
+              
+                //task 4
+                else if(task == 4){
+                  if(fade<256){ //same as fading above
+                    analogWrite(R,fade);
+                  }
+                  else if(fade<512){
+                    analogWrite(G,fade%256);
+                  }
+                  else if (fade<868){
+                    analogWrite(B, fade%256);
+                  } 
+                  else{
+                    fade = 0;
+                  }
+                  for(int i = 6; i<9; i++){ //turn off all other led
+                    digitalWrite(i, LOW);
+                  }
+                }
+                fade ++; //update fade every 10 ms
+                delay(10); //delay 10ms every run
+                timeout --; //update timeout
+              }
+              
+              
+    
+            </code>  
+          
+        </div>
+      </body>
+    </html>
+        
