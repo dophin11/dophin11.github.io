@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, maximum-scale=1.0" />
+
+    <title>Yishu Fang's HCDE 439 Physical Computing Page!</title>
+
+    <link href="style.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <h1>Yishu Fang's 3rd Assignment!</h1>
+    <div class="header">
+    </div>
+      <p>Document for Assignment 3: Input Output!</p>
+      <h2>Calculation and Schematic</h2>
+      <img src = "3calculation.png"/>
+      <img src = "3schematics.png"/>
+      <p> I used Ohm's law to calculate the appropriate resistors to keep 
+        the current under 40mA, which is the maximum output from the Arduino.
+         Based on the calculations, any resistor greater than 125 ohms would work. 
+         However, to minimize current draw and conserve battery life, I chose a 10k ohm resistor. 
+         The voltage readings are expected to vary between 2.5V and 5V, as the 
+         photoresistor can range from 0 to 10k ohms.
+      </p>
+    </div>
+      <h2>Circuit</h2>
+      <img src="3circuit.png"/>
+      <p>The circuit is build according to the schematics above</p>
+      <h2>Answer to the questions</h2>
+      <img src = "3question1.png"/>
+      <img src = "3question2.png"/>
+      <img src = "3question3.png"/>
+      <h2>operation of the circuit</h2>
+        <p>
+            Based on the readings from the photoresistor, the LED behavior changes according to the light conditions:
+
+            Low Light: The blue LED will turn on, and the RGB LED will display a specific color calculated from the reading value.
+            Medium Light: The green LED will turn on, and the RGB LED will fade into another color based on the calculated reading.
+            High Light: The red LED will turn on, and the RGB LED will fade into yet another color determined by the light level.
+            This setup dynamically adjusts the LED colors and behavior to reflect the surrounding light conditions.
+        </p>
+        <img src="3circuit.gif"/>
+        <p>below is the code snippet:</p>
+        <pre>
+            <code>
+              
+                int red = 13; //set pin number to leds
+                int green = 12;
+                int blue = 8;
+                int R = 10;
+                int G = 9;
+                int B = 11;
+                
+                int resistor = A0; //set pin A0 to read the resistor
+                int light = 0; //initializing light
+                
+                
+                void setup() {
+                  for (int i = 8; i<14; i++){ //set pin mode for all pins, don't need to set A0
+                    pinMode(i, OUTPUT);
+                  }
+                  Serial.begin(9600); //setup for serial monitor
+                }
+                
+                void loop() {
+                  light = analogRead(A0); //read the photoresistor 
+                  light = constrain(light,156, 807); //set constrain value based on the min and max
+                  light = map(light,156,807, 255, 0); //map the reading to output
+                  Serial.println(light); //print light value to serial monitor
+                  if (light < 50){ //set high light constrain
+                    digitalWrite(red,HIGH); //red led lights while others are off
+                    digitalWrite(green,LOW);
+                    digitalWrite(blue,LOW);
+                    analogWrite(R,255 - light); //set color for the RGB led
+                    analogWrite(G,light);
+                    analogWrite(B, 0);
+                  } 
+                  else if(light < 150){ //set medium light constrain
+                    digitalWrite(green, HIGH); //green led lights while others are off
+                    digitalWrite(red,LOW);
+                    digitalWrite(blue,LOW);
+                    analogWrite(R, 0); //set color for the RGB led
+                    analogWrite(G, 255-light);
+                    analogWrite(B, light);
+                  } 
+                  else{ //low light
+                    digitalWrite(blue, HIGH); //blue led lights while others are off
+                    digitalWrite(green,LOW);
+                    digitalWrite(red,LOW);
+                    analogWrite(R,255-light); //set color for the RGB led
+                    analogWrite(G,0);
+                    analogWrite(B, light);
+                  
+                  }
+                  delay(1); //delay 1ms
+                }
+                
+    
+            </code>  
+          
+        </div>
+      </body>
+    </html>
+        
