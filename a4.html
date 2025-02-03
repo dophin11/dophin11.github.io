@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, maximum-scale=1.0" />
+
+    <title>Yishu Fang's HCDE 439 Physical Computing Page!</title>
+
+    <link href="style.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <h1>Yishu Fang's 4th Assignment!</h1>
+    <div class="header">
+    </div>
+      <p>Document for Assignment 4: Library!</p>
+      <h2>Schematic</h2>
+      <img src = "4schematics.png"/>
+      <p> Schematics as shown above, I added a capacitor so the flow is more
+        stable. 
+      </p>
+    </div>
+      <h2>Circuit</h2>
+      <img src="4circuit.png"/>
+      <p>The circuit is build according to the schematics above</p>
+      <h2>Answer to the questions</h2>
+      <img src = "4question.png"/>
+      <p> For question 1, the servo will move 20 times in 2 seconds since there is a delay
+        each degree have different duty cycle, but when measured with a multimeter, the voltage
+        really small so the percentage that it is active is really small(5%) and it doesnt change much.
+        For question 2, I used averaging method to solve the problem, updating it 20% at a time
+        so it is more stable and can average out the error.
+        For question 3, I used a different way of averaging, I took 10 readings and average them out, so 
+        the noise doesn't bother the system. 
+      </p>
+      <h2>operation of the circuit</h2>
+        <p>
+            When your hands move at different distance, the servo will respond by rotating to different degree. 
+            It is like a extended robotic arm that will respond according to your movement.
+        </p>
+        <img src="4circuit.gif"/>
+        <p>below is the code snippet:</p>
+        <pre>
+            <code>
+              
+                #include <Servo.h>; //import libraries (for Servo)
+                    #include <Ultrasonic.h>; //(for ultrasonic sensor)
+                    
+                    #define TRIGGER_PIN 3 //define pin for trigger and echo (ultrasonic)
+                    #define ECHO_PIN 2
+                    
+                    Servo myServo; //initialize servo
+                    Ultrasonic ultrasonic(TRIGGER_PIN, ECHO_PIN); //intitalize ultrasonic
+                    long distance_avg = 0;//define distance average to reduce noise
+                    
+                    
+                    void setup() {
+                      Serial.begin(9600); //setup serial monitor
+                      myServo.attach(7); //set servo pin to 7
+                    
+                    }
+                    void loop() {
+                      long distance = ultrasonic.read(); //read distance
+                      distance_avg = (0.8 * distance_avg) + (0.2 * distance); //calculate average distanc based on calculation updates
+                      distance_avg = constrain(distance_avg, 0, 50); //set constrain so between 0 to 50 cm
+                      int distance_map = map(distance_avg, 0, 50, 0, 180); //map distance average to angle of the servo
+                      myServo.write(distance_map); //output to servo
+                      Serial.println(distance_map); //check reading
+                      delay(50); //delay
+                    }
+                    
+    
+            </code>  
+          
+        </div>
+      </body>
+    </html>
+        
