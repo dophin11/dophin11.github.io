@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, maximum-scale=1.0" />
+
+    <title>Yishu Fang's HCDE 439 Physical Computing Page!</title>
+
+    <link href="style.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <h1>Yishu Fang's 5th Assignment!</h1>
+    <div class="header">
+    </div>
+      <p>Document for Assignment 5: Higher Voltage!</p>
+      <h2>Schematic</h2>
+      <img src = "5schematics.png"/>
+      <p> Schematics as shown above, as well as calculations and justifications
+      </p>
+    </div>
+      <h2>Circuit</h2>
+      <img src="5circuit.png"/>
+      <p>The circuit is build according to the schematics above</p>
+      <h2>Answer to the questions</h2>
+      <img src = "5question.png"/>
+      <img src = "5question2.png"/>
+      <p> for question 2, I used DC motor, flyback diode, arduino (pin 9), capacitor, and n-MOSFET.
+        for question 3, i used both side of the chip to control two moters back and forth, psuedo code shown above.
+        for psuedo code, i assume that the enable pin is always on (so no change in speed).
+      </p>
+      <h2>operation of the circuit</h2>
+        <p>
+            When your hands move at different distance, the led strap will respond with different brightness.
+        </p>
+        <img src="5circuit.gif"/>
+        <p>below is the code snippet:</p>
+        <pre>
+            <code>
+              
+                #include <Ultrasonic.h> //setting library
+                    Ultrasonic ultrasonic(12,13); //setting ultrasonic object with according pin used
+                    int distance = 0; //initializing the distance detected
+                    int min = 1000; //initializing min
+                    int max = 0; //initializing max
+                    int lim = 0; //initializing lim
+                    
+                    
+                    void setup() {
+                      Serial.begin(9600); //set up serial monitor
+                      while (millis() < 5000){ //for the first 5 second, calibrate the sensor 
+                        distance = ultrasonic.read();
+                        if (distance < min){ //update min value
+                          min = distance;
+                        }
+                        if (distance > max){ //update max value
+                          max = distance;
+                        }
+                        delay(20); //short delay for stable reading
+                      }
+                    }
+                    
+                    void loop() {
+                      distance = ultrasonic.read(); //read distance
+                      if(distance > 0){ //avoid 0 value reading (reduce unwanted noise)
+                        Serial.println(distance); //print on monitor
+                        distance = map(distance,min, max, 0, 255); //map the min and max to analogWrite output range
+                        lim = 0.7*lim + 0.3 * distance; //update value for a more stable transition (ratio tested)
+                        lim = constrain (lim, 0, 255); //set constrain for lim
+                        analogWrite(9, lim); //analogWrite to leds
+                      }
+                      delay(30);//short delay
+                    }
+                    
+    
+            </code>  
+          
+        </div>
+      </body>
+    </html>
+        
