@@ -10,6 +10,7 @@ function setup() {
   textFont("system-ui", 50); //set font, style, and align (based on BOLD, CENTER provided by p5)
   textStyle(BOLD);
   textAlign(CENTER, CENTER);
+  background(255);
 }
 
 function draw() {
@@ -22,7 +23,7 @@ function draw() {
   let values = str.trim().split(","); //the position is given in (x, y) so split into two numbers
   if (values.length === 2) {
     xposition = map(Number(values[0]), 0, 1023, 0, width);  // Scale X to canvas width (x got from first number after split)
-    yposition = map(Number(values[1]), 0, 1023, height, 0); // Scale Y to canvas height (y got from second number after split)
+    yposition = map(Number(values[1]), 0, 1023, 0, height); // Scale Y to canvas height (y got from second number after split)
   }
   fill(255, 0, 0); // Red circle
   ellipse(xposition, yposition, 50, 50); // Draw circle at joystick position

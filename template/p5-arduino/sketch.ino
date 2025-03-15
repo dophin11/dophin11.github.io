@@ -33,11 +33,11 @@ void loop(){
         }
 
     }
-    int xposition = analogRead(xposition); //read x position from pin
-    int yposition = analogRead(yposition); //read y position from pin (joy stick)
-    Serial.print(xposition); //print x position to serial (x, y)
+    int x = analogRead(xposition); //read x position from pin
+    int y = analogRead(yposition); //read y position from pin (joy stick)
+    Serial.print(x); //print x position to serial (x, y)
     Serial.print(",");
-    Serial.println(yposition); //print y position to serial in forms of (x, y)
+    Serial.println(y); //print y position to serial in forms of (x, y)
 
     delay(50);//short delay for stability
 }
